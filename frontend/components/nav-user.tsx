@@ -20,6 +20,9 @@ import {
 } from "@/components/ui/sidebar"
 import { EllipsisVerticalIcon, LogOutIcon } from "lucide-react"
 import { useAuth } from "../src/auth/AuthContext"
+import { useState } from "react"
+import { useNavigate } from "react-router"
+import { toast } from "sonner"
 
 export function NavUser({
   user,
@@ -32,6 +35,24 @@ export function NavUser({
 }) {
   const { isMobile } = useSidebar()
   const { signOut } = useAuth()
+  const navigate = useNavigate()
+  const [isLoggingOut, setIsLoggingOut] = useState(false)
+
+  async function handleSignOut() {
+    if (isLoggingOut) return
+
+    setIsLoggingOut(true)
+    try {
+      await signOut()
+      toast.success("Anda berhasil logout.")
+      navigate("/internal/login", { replace: true })
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Logout gagal.")
+    } finally {
+      setIsLoggingOut(false)
+    }
+  }
+
   return (
     <SidebarMenu>
       <SidebarMenuItem>
@@ -76,10 +97,10 @@ export function NavUser({
               </DropdownMenuLabel>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => void signOut()}>
+            <DropdownMenuItem disabled={isLoggingOut} onClick={() => void handleSignOut()}>
               <LogOutIcon
               />
-              Log out
+              {isLoggingOut ? "Logging out..." : "Log out"}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

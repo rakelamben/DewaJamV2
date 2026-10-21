@@ -1,5 +1,5 @@
 import logging
-from typing import Any
+from typing import Any, Callable
 
 import httpx
 from fastapi import Depends, HTTPException, status
@@ -19,6 +19,246 @@ class InternalUser(BaseModel):
     entity_id: str
     role: str
     name: str
+
+
+# Capability map is intentionally kept in application code for this first
+# foundation phase. It can later be backed by role_capabilities without
+# changing the endpoint dependency API.
+ROLE_CAPABILITIES: dict[str, set[str]] = {
+    "admin": {"*"},
+    "manager": {
+        "internal.access",
+        "notifications.view",
+        "notifications.mark_read",
+        "notifications.mark_all_read",
+        "activity_log.view",
+        "activity_log.export",
+        "warehouse.view",
+        "warehouse.movement.create",
+        "pos.access",
+        "pos.transaction.create",
+        "pos.transaction.view",
+        "marketplace.order.view",
+        "messages.view",
+        "messages.send",
+        "messages.mark_read",
+        "personnel.view",
+        "documents.view",
+        "documents.create",
+        "documents.upload",
+        "documents.download",
+        "documents.update",
+        "documents.archive",
+        "documents.delete",
+        "workflow.view",
+        "workflow.create",
+        "workflow.submit",
+        "workflow.cancel",
+        "workflow.approval.view",
+        "workflow.approve",
+        "workflow.reject",
+        "workflow.execute",
+        "workflow.history.view",
+        "correspondence.view",
+        "correspondence.create",
+        "correspondence.update",
+        "correspondence.archive",
+        "correspondence.delete",
+        "correspondence.upload",
+        "correspondence.download",
+        "correspondence.disposition.view",
+        "correspondence.disposition.create",
+        "correspondence.disposition.update",
+        "correspondence.disposition.complete",
+        "correspondence.disposition.cancel",
+    },
+    "staf_gudang": {
+        "internal.access",
+        "notifications.view",
+        "notifications.mark_read",
+        "notifications.mark_all_read",
+        "warehouse.view",
+        "warehouse.movement.create",
+        "marketplace.order.view",
+        "messages.view",
+        "messages.send",
+        "messages.mark_read",
+        "personnel.view",
+        "documents.view",
+        "documents.create",
+        "documents.upload",
+        "documents.download",
+        "documents.update",
+        "documents.archive",
+        "workflow.view",
+        "workflow.create",
+        "workflow.submit",
+        "workflow.cancel",
+        "workflow.approval.view",
+        "workflow.approve",
+        "workflow.reject",
+        "workflow.execute",
+        "workflow.history.view",
+        "correspondence.view",
+        "correspondence.create",
+        "correspondence.update",
+        "correspondence.archive",
+        "correspondence.upload",
+        "correspondence.download",
+        "correspondence.disposition.view",
+        "correspondence.disposition.create",
+        "correspondence.disposition.update",
+        "correspondence.disposition.complete",
+        "correspondence.disposition.cancel",
+    },
+    "gudang": {
+        "internal.access",
+        "notifications.view",
+        "notifications.mark_read",
+        "notifications.mark_all_read",
+        "warehouse.view",
+        "warehouse.movement.create",
+        "marketplace.order.view",
+        "messages.view",
+        "messages.send",
+        "messages.mark_read",
+        "personnel.view",
+        "documents.view",
+        "documents.create",
+        "documents.upload",
+        "documents.download",
+        "workflow.view",
+        "workflow.create",
+        "workflow.submit",
+        "workflow.cancel",
+        "workflow.history.view",
+        "correspondence.view",
+        "correspondence.create",
+        "correspondence.upload",
+        "correspondence.download",
+        "correspondence.disposition.view",
+        "correspondence.disposition.update",
+        "correspondence.disposition.complete",
+    },
+    "staf_operasional": {
+        "internal.access",
+        "notifications.view",
+        "notifications.mark_read",
+        "notifications.mark_all_read",
+        "pos.access",
+        "pos.transaction.create",
+        "pos.transaction.view",
+        "marketplace.order.view",
+        "messages.view",
+        "messages.send",
+        "messages.mark_read",
+        "personnel.view",
+        "documents.view",
+        "documents.create",
+        "documents.upload",
+        "documents.download",
+        "workflow.view",
+        "workflow.create",
+        "workflow.submit",
+        "workflow.cancel",
+        "workflow.history.view",
+        "correspondence.view",
+        "correspondence.create",
+        "correspondence.upload",
+        "correspondence.download",
+        "correspondence.disposition.view",
+        "correspondence.disposition.update",
+        "correspondence.disposition.complete",
+    },
+    "kasir": {
+        "internal.access",
+        "notifications.view",
+        "notifications.mark_read",
+        "notifications.mark_all_read",
+        "pos.access",
+        "pos.transaction.create",
+        "pos.transaction.view",
+        "marketplace.order.view",
+        "messages.view",
+        "messages.send",
+        "messages.mark_read",
+        "personnel.view",
+        "documents.view",
+        "documents.create",
+        "documents.upload",
+        "documents.download",
+        "workflow.view",
+        "workflow.create",
+        "workflow.submit",
+        "workflow.cancel",
+        "workflow.history.view",
+        "correspondence.view",
+        "correspondence.download",
+        "correspondence.disposition.view",
+        "correspondence.disposition.update",
+        "correspondence.disposition.complete",
+    },
+}
+
+# KMS MVP permissions. Admin already has wildcard access; operational roles
+# receive read/search/bookmark access while manager owns content governance.
+_KNOWLEDGE_READ_CAPABILITIES = {
+    "knowledge.view",
+    "knowledge.search",
+    "knowledge.bookmark",
+    "knowledge.category.view",
+}
+_KNOWLEDGE_MANAGER_CAPABILITIES = _KNOWLEDGE_READ_CAPABILITIES | {
+    "knowledge.create",
+    "knowledge.update",
+    "knowledge.publish",
+    "knowledge.archive",
+    "knowledge.delete",
+    "knowledge.category.manage",
+    "knowledge.version.view",
+    "knowledge.version.restore",
+    "knowledge.upload",
+    "knowledge.download",
+    "knowledge.notification.manage",
+    "knowledge.editor.manage",
+}
+_MIS_MANAGER_CAPABILITIES = {
+    "mis.dashboard.view",
+    "mis.sales.view",
+    "mis.inventory.view",
+    "mis.profitability.view",
+    "mis.kpi.view",
+    "mis.kpi.manage",
+    "mis.report.export",
+    "mis.summary.refresh",
+}
+for _role in ("staf_gudang", "gudang", "staf_operasional", "kasir"):
+    ROLE_CAPABILITIES[_role].add("mis.dashboard.view")
+ROLE_CAPABILITIES["staf_operasional"].add("mis.sales.view")
+ROLE_CAPABILITIES["staf_gudang"].add("mis.inventory.view")
+ROLE_CAPABILITIES["gudang"].add("mis.inventory.view")
+ROLE_CAPABILITIES["manager"].update(_MIS_MANAGER_CAPABILITIES)
+for _role in ("staf_gudang", "gudang", "staf_operasional", "kasir"):
+    ROLE_CAPABILITIES[_role].update(_KNOWLEDGE_READ_CAPABILITIES)
+ROLE_CAPABILITIES["manager"].update(_KNOWLEDGE_MANAGER_CAPABILITIES)
+
+def has_capability(user: InternalUser, capability: str) -> bool:
+    capabilities = ROLE_CAPABILITIES.get(user.role, set())
+    return "*" in capabilities or capability in capabilities
+
+
+def require_capability(capability: str) -> Callable:
+    async def dependency(
+        current_user: InternalUser = Depends(get_current_internal_user),
+    ) -> InternalUser:
+        if not has_capability(current_user, capability):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=f"Role {current_user.role} tidak memiliki izin {capability}.",
+            )
+        return current_user
+
+    return dependency
 
 
 async def _get_json(

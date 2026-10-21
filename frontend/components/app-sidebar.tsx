@@ -11,54 +11,71 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
-import { LayoutDashboardIcon, FolderIcon, WatchIcon, BoxIcon, NotebookTabsIcon } from "lucide-react"
+import { LayoutDashboardIcon, StoreIcon, WatchIcon, BoxIcon, NotebookTabsIcon, PackageIcon, BellIcon, ClipboardListIcon, UsersIcon, MessageSquareIcon, FileTextIcon, GitPullRequestIcon, MailIcon, BookOpenIcon, BarChart3Icon, ChartNoAxesCombinedIcon, WarehouseIcon } from "lucide-react"
+import { useAuth } from "../src/auth/AuthContext"
 
 const data = {
-  user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
-  navMain: [
+  navGroups: [
     {
-      title: "Dashboard",
-      path: "/internal",
-      icon: (
-        <LayoutDashboardIcon
-        />
-      ),
+      isGroup: false,
+      items: [{ title: "Dashboard MIS", path: "/internal", icon: <LayoutDashboardIcon /> }],
     },
     {
-      title: "POS",
-      path: "/internal/pos",
-      icon: (
-        <NotebookTabsIcon
-        />
-      ),
+      label: "Laporan MIS",
+      items: [
+        { title: "Sales Report", path: "/internal/mis/sales", icon: <BarChart3Icon /> },
+        { title: "Profitability Report", path: "/internal/mis/profitability", icon: <ChartNoAxesCombinedIcon /> },
+        { title: "Inventory Report", path: "/internal/mis/inventory", icon: <WarehouseIcon /> },
+        { title: "KPI Management", path: "/internal/mis/kpi", icon: <ChartNoAxesCombinedIcon /> },
+      ],
     },
     {
-      title: "Warehouse",
-      path: "/internal/warehouse",
-      icon: (
-        <BoxIcon
-        />
-      ),
+      label: "POS",
+      items: [
+        { title: "Input Transaksi", path: "/internal/pos/transaction", icon: <NotebookTabsIcon /> },
+        { title: "Sales Harian", path: "/internal/pos/sales", icon: <NotebookTabsIcon /> },
+      ],
     },
     {
-      title: "Master Data",
-      path: "/internal/masterdata",
-      icon: (
-        <FolderIcon
-        />
-      ),
+      label: "Warehouse",
+      items: [{ title: "Warehouse", path: "/internal/warehouse", icon: <BoxIcon /> }],
     },
-
+    {
+      label: "Master Data",
+      items: [
+        { title: "Master Data Produk", path: "/internal/masterdata/products", icon: <PackageIcon /> },
+        { title: "Master Data Store", path: "/internal/masterdata/stores", icon: <StoreIcon /> },
+        { title: "Master Data Knowledge", path: "/internal/masterdata/knowledge", icon: <BookOpenIcon /> },
+      ],
+    },
+    {
+      label: "OAS",
+      items: [
+        { title: "Notifikasi", path: "/internal/notifications", icon: <BellIcon /> },
+        { title: "Activity Log", path: "/internal/activity-logs", icon: <ClipboardListIcon /> },
+        { title: "Pesan Internal", path: "/internal/messages", icon: <MessageSquareIcon /> },
+        { title: "Direktori Personnel", path: "/internal/personnel", icon: <UsersIcon /> },
+        { title: "Dokumen Internal", path: "/internal/documents", icon: <FileTextIcon /> },
+        { title: "Workflow Approval", path: "/internal/workflows", icon: <GitPullRequestIcon /> },
+        { title: "Persuratan", path: "/internal/correspondence", icon: <MailIcon /> },
+      ],
+    },
+    {
+      label: "Knowledge",
+      items: [{ title: "Knowledge Management", path: "/internal/knowledge", icon: <BookOpenIcon /> }],
+    },
   ],
-  
-  
-  
 }
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const { profile } = useAuth()
+  const canManageKnowledge = profile?.role === "admin" || profile?.role === "manager"
+  const visibleGroups = data.navGroups.map((group) => ({ ...group, items: group.items.filter((item) => item.path !== "/internal/masterdata/knowledge" || canManageKnowledge) })).filter((group) => group.items.length > 0)
+  const user = {
+    name: profile?.name ?? "User internal",
+    email: profile?.email ?? "",
+    avatar: "",
+  }
+
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>
@@ -75,10 +92,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
+        <NavMain groups={visibleGroups} />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser user={user} />
       </SidebarFooter>
     </Sidebar>
   )
