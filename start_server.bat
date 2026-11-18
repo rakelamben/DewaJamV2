@@ -1,4 +1,4 @@
 @echo off
-set ROOT=C:\Users\DEWA\Documents\kiroproject\test2
+set ROOT=D:\Project\dewajamv2
 
 wt -d "%ROOT%\backend" --title Backend cmd /k "call .venv\Scripts\activate.bat && uvicorn main:app --reload" ; new-tab -d "%ROOT%\frontend" --title Frontend cmd /k "npm run dev"

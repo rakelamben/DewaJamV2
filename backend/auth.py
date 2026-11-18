@@ -71,6 +71,14 @@ ROLE_CAPABILITIES: dict[str, set[str]] = {
         "correspondence.disposition.update",
         "correspondence.disposition.complete",
         "correspondence.disposition.cancel",
+        "dss.view",
+        "dss.run",
+        "dss.weights.manage",
+        "dss.decide",
+        "es.view",
+        "es.consult",
+        "es.rules.manage",
+        "es.decide",
     },
     "staf_gudang": {
         "internal.access",
@@ -110,6 +118,11 @@ ROLE_CAPABILITIES: dict[str, set[str]] = {
         "correspondence.disposition.update",
         "correspondence.disposition.complete",
         "correspondence.disposition.cancel",
+        "dss.view",
+        "dss.run",
+        "es.view",
+        "es.consult",
+        "es.decide",
     },
     "gudang": {
         "internal.access",
@@ -410,6 +423,8 @@ async def get_current_internal_user(
                 "manager",
                 "staf_gudang",
                 "staf_operasional",
+                "kasir",
+                "gudang",
             }
             if role not in allowed_roles:
                 raise HTTPException(

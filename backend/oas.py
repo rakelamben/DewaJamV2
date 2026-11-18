@@ -52,6 +52,7 @@ NOTIFICATION_TYPES = {
     "knowledge_updated",
     "knowledge_archived",
     "knowledge_attachment_uploaded",
+    "dss_restock",
 }
 NOTIFICATION_SEVERITIES = {"info", "success", "warning", "critical"}
 

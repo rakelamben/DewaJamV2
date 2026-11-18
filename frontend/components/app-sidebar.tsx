@@ -11,7 +11,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
-import { LayoutDashboardIcon, StoreIcon, WatchIcon, BoxIcon, NotebookTabsIcon, PackageIcon, BellIcon, ClipboardListIcon, UsersIcon, MessageSquareIcon, FileTextIcon, GitPullRequestIcon, MailIcon, BookOpenIcon, BarChart3Icon, ChartNoAxesCombinedIcon, WarehouseIcon } from "lucide-react"
+import { LayoutDashboardIcon, StoreIcon, WatchIcon, BoxIcon, NotebookTabsIcon, PackageIcon, BellIcon, ClipboardListIcon, UsersIcon, MessageSquareIcon, FileTextIcon, GitPullRequestIcon, MailIcon, BookOpenIcon, BarChart3Icon, ChartNoAxesCombinedIcon, WarehouseIcon, BrainCircuitIcon } from "lucide-react"
 import { useAuth } from "../src/auth/AuthContext"
 
 const data = {
@@ -64,12 +64,20 @@ const data = {
       label: "Knowledge",
       items: [{ title: "Knowledge Management", path: "/internal/knowledge", icon: <BookOpenIcon /> }],
     },
+    {
+      label: "Decision Support",
+      items: [
+        { title: "DSS Overview", path: "/internal/dss", icon: <BrainCircuitIcon /> },
+        { title: "Sistem Pakar (ES)", path: "/internal/es", icon: <ClipboardListIcon /> },
+      ],
+    },
   ],
 }
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { profile } = useAuth()
   const canManageKnowledge = profile?.role === "admin" || profile?.role === "manager"
-  const visibleGroups = data.navGroups.map((group) => ({ ...group, items: group.items.filter((item) => item.path !== "/internal/masterdata/knowledge" || canManageKnowledge) })).filter((group) => group.items.length > 0)
+  const canViewDss = profile?.role === "admin" || profile?.role === "manager" || profile?.role === "staf_gudang"
+  const visibleGroups = data.navGroups.map((group) => ({ ...group, items: group.items.filter((item) => (item.path !== "/internal/masterdata/knowledge" || canManageKnowledge) && (item.path !== "/internal/dss" || canViewDss)) })).filter((group) => group.items.length > 0)
   const user = {
     name: profile?.name ?? "User internal",
     email: profile?.email ?? "",

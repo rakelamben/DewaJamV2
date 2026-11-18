@@ -32,11 +32,20 @@ import ProfitabilityReportPage from './app/internal/ProfitabilityReportPage'
 import InventoryReportPage from './app/internal/InventoryReportPage'
 import KpiManagementPage from './app/internal/KpiManagementPage'
 import { InternalAuthGuard } from './auth/InternalAuthGuard'
+import DssOverviewPage from './app/internal/dss/DssOverviewPage'
+import DssScenarioPage from './app/internal/dss/DssScenarioPage'
+import DssWeightPage from './app/internal/dss/DssWeightPage'
+import DssRunDetailPage from './app/internal/dss/DssRunDetailPage'
+import EsOverviewPage from './app/internal/es/EsOverviewPage'
+import EsDomainPage from './app/internal/es/EsDomainPage'
+import EsRulesPage from './app/internal/es/EsRulesPage'
+import ExpertAdvisorPage from './app/customer/ExpertAdvisorPage'
 
 export default function AppRoutes() {
     return (
         <Routes >
             <Route path='/' element={<ShopPage />} /> 
+            <Route path='/advisor' element={<ExpertAdvisorPage />} />
             <Route path='/product/:productId' element={<ProductPage />} /> 
             <Route path='/login' element={<LoginPage/>}></Route>
             <Route path='/signup' element={<SignupPage/>}></Route>
@@ -72,6 +81,13 @@ export default function AppRoutes() {
                 <Route path='masterdata/products' element={<MasterdataProductsPage />} />
                  <Route path='masterdata/stores' element={<MasterdataStoresPage />} />
                  <Route path='masterdata/knowledge' element={<MasterdataKnowledgePage />} />
+                 <Route path='dss' element={<DssOverviewPage />} />
+                 <Route path='dss/:scenarioCode' element={<DssScenarioPage />} />
+                 <Route path='dss/:scenarioCode/weights' element={<DssWeightPage />} />
+                 <Route path='dss/runs/:runId' element={<DssRunDetailPage />} />
+                 <Route path='es' element={<EsOverviewPage />} />
+                 <Route path='es/:domainCode' element={<EsDomainPage />} />
+                 <Route path='es/:domainCode/rules' element={<EsRulesPage />} />
             </Route>
 
             <Route path='/internal/login' element={<InternalLoginPage />}>

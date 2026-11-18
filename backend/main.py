@@ -1,4 +1,4 @@
-﻿from datetime import date
+from datetime import date
 from io import StringIO
 
 from fastapi import Depends, FastAPI, HTTPException, Query
@@ -111,9 +111,13 @@ from knowledge import (
 from mis import get_dashboard
 from mis_kpi import KpiTargetCreate, KpiTargetUpdate, create_target, get_performance, list_kpis, list_targets, update_target
 from mis_reports import inventory_report, profitability_report, sales_report, to_csv
+from dss.routes import router as dss_router
+from es.routes import router as es_router
 import httpx
 
 app = FastAPI(title="Test2 API")
+app.include_router(dss_router)
+app.include_router(es_router)
 
 app.add_middleware(
     CORSMiddleware,

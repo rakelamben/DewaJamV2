@@ -630,3 +630,104 @@
 | `stok_akhir` | `int4` |  |
 | `generated_at` | `timestamptz` |  |
 
+## Table `iss_es_domains`
+
+### Columns
+
+| Name | Type | Constraints |
+|------|------|-------------|
+| `domain_id` | `uuid` | Primary |
+| `kode` | `varchar` | Unique |
+| `nama` | `varchar` | |
+| `deskripsi` | `text` | Nullable |
+| `target_role` | `varchar` | |
+| `entity_type` | `varchar` | |
+| `is_active` | `bool` | |
+| `created_at` | `timestamptz` | |
+
+## Table `iss_es_facts`
+
+### Columns
+
+| Name | Type | Constraints |
+|------|------|-------------|
+| `fact_id` | `uuid` | Primary |
+| `domain_id` | `uuid` | |
+| `kode` | `varchar` | |
+| `nama` | `varchar` | |
+| `pertanyaan` | `text` | Nullable |
+| `tipe_nilai` | `varchar` | |
+| `sumber_fakta` | `varchar` | |
+| `opsi_nilai` | `jsonb` | |
+| `urutan` | `int4` | |
+| `is_required` | `bool` | |
+| `is_active` | `bool` | |
+
+## Table `iss_es_rules`
+
+### Columns
+
+| Name | Type | Constraints |
+|------|------|-------------|
+| `rule_id` | `uuid` | Primary |
+| `domain_id` | `uuid` | |
+| `kode` | `varchar` | |
+| `nama` | `varchar` | |
+| `kondisi` | `jsonb` | |
+| `jenis_konklusi` | `varchar` | |
+| `kesimpulan_kode` | `varchar` | |
+| `kesimpulan_nilai` | `varchar` | Nullable |
+| `kesimpulan_judul` | `varchar` | |
+| `penjelasan` | `text` | |
+| `rekomendasi` | `jsonb` | |
+| `cf_pakar` | `float8` | |
+| `prioritas` | `int4` | |
+| `knowledge_source_table` | `varchar` | Nullable |
+| `knowledge_source_id` | `uuid` | Nullable |
+| `status` | `varchar` | |
+| `created_by` | `uuid` | Nullable |
+| `created_at` | `timestamptz` | |
+| `updated_at` | `timestamptz` | |
+
+## Table `iss_es_consultations`
+
+### Columns
+
+| Name | Type | Constraints |
+|------|------|-------------|
+| `consultation_id` | `uuid` | Primary |
+| `domain_id` | `uuid` | |
+| `actor_type` | `varchar` | `personnel` / `customer` / `guest` |
+| `personnel_id` | `uuid` | Nullable |
+| `customer_id` | `uuid` | Nullable |
+| `reference_table` | `varchar` | Nullable |
+| `reference_id` | `uuid` | Nullable |
+| `user_facts` | `jsonb` | |
+| `db_facts` | `jsonb` | |
+| `inferred_facts` | `jsonb` | |
+| `warnings` | `jsonb` | |
+| `workflow_request_id` | `uuid` | Nullable |
+| `created_at` | `timestamptz` | |
+
+## Table `iss_es_results`
+
+### Columns
+
+| Name | Type | Constraints |
+|------|------|-------------|
+| `result_id` | `uuid` | Primary |
+| `consultation_id` | `uuid` | |
+| `ranking` | `int4` | |
+| `kesimpulan_kode` | `varchar` | |
+| `kesimpulan_judul` | `varchar` | |
+| `cf_kombinasi` | `float8` | |
+| `tingkat_keyakinan` | `varchar` | |
+| `ringkasan_diagnosis` | `text` | |
+| `rekomendasi` | `jsonb` | |
+| `matched_rules` | `jsonb` | |
+| `matched_products` | `jsonb` | |
+| `knowledge_refs` | `jsonb` | |
+| `decision` | `varchar` | |
+| `decision_by` | `uuid` | Nullable |
+| `decision_note` | `text` | Nullable |
+| `decided_at` | `timestamptz` | Nullable |
